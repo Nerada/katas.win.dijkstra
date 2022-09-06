@@ -67,6 +67,8 @@ public static class Calculator
             backTrackPoint = backTrackPoint.Origin;
         }
 
+        route.Add(backTrackPoint);
+
         return route;
     }
 
@@ -85,6 +87,7 @@ public static class Calculator
 
         List<Point> gridPoints = neighborLocations.Select(location => grid.Points.Single(point => point.X == location.x && point.Y == location.y)).ToList();
         gridPoints.RemoveAll(point => point.Blocked);
+        gridPoints.RemoveAll(point => point.Origin != null);
 
         void SetPointValues(Point point)
         {
