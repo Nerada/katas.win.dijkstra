@@ -1,17 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
+﻿// -----------------------------------------------
+//     Author: Ramon Bollen
+//      File: Dijkstra.App.xaml.cs
+// Created on: 20220906
+// -----------------------------------------------
+
+using System;
 using System.Windows;
 
-namespace Dijkstra
+namespace Dijkstra;
+
+/// <summary>
+///     Interaction logic for App.xaml
+/// </summary>
+public partial class App
 {
-    /// <summary>
-    /// Interaction logic for App.xaml
-    /// </summary>
-    public partial class App : Application
-    {
-    }
+    private void OnStartup(object sender, StartupEventArgs e) => throw new NotImplementedException();
 }
