@@ -10,7 +10,7 @@ using System.Windows;
 namespace Dijkstra;
 
 /// <summary>
-///     Interaction logic for App.xaml
+///     https://en.wikipedia.org/wiki/A*_search_algorithm
 /// </summary>
 public partial class App
 {
