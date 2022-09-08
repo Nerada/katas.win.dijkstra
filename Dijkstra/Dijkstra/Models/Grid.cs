@@ -15,16 +15,13 @@ public class Grid
 {
     private readonly HashSet<Point> _grid = new();
 
-    private Point? _endPoint;
-    private Point? _startPoint;
-
     public Grid(uint xSize, uint ySize)
     {
         Size = (xSize, ySize);
 
         for (int x = 0; x < xSize; x++)
         {
-            for (int y = 0; y < ySize; y++) { _grid.Add(new Point(x, y)); }
+            for (int y = 0; y < ySize; y++) { _grid.Add(new Point(new Coordinate(x, y))); }
         }
     }
 
@@ -32,32 +29,47 @@ public class Grid
 
     public IReadOnlyList<Point> Points => _grid.ToImmutableList();
 
-    public void SetStartPoint(Point startPoint)
-    {
-        IsAllowedPoint(startPoint);
-        if (startPoint.Equals(_endPoint)) throw new InvalidOperationException(@"StartPoint cannot be same as EndPoint");
+    public Point? EndPoint   { get; private set; }
+    public Point? StartPoint { get; private set; }
 
-        _startPoint = startPoint;
+    public void SetStartPoint(Coordinate? startPoint)
+    {
+        if (startPoint is not { } start)
+        {
+            StartPoint = null;
+            return;
+        }
+
+        if (start.Equals(EndPoint?.Coordinate)) throw new InvalidOperationException(@"StartPoint cannot be same as EndPoint");
+
+        StartPoint = GetRoutePoint(start);
     }
 
-    public void SetEndPoint(Point endPoint)
+    public void SetEndPoint(Coordinate? endPoint)
     {
-        IsAllowedPoint(endPoint);
-        if (endPoint.Equals(_startPoint)) throw new InvalidOperationException(@"EndPoint cannot be same as StartPoint");
+        if (endPoint is not { } end)
+        {
+            EndPoint = null;
+            return;
+        }
 
-        _endPoint = endPoint;
+        if (end.Equals(StartPoint?.Coordinate)) throw new InvalidOperationException(@"EndPoint cannot be same as StartPoint");
+
+        EndPoint = GetRoutePoint(end);
     }
 
     public IReadOnlySet<Point> GetShortestPath()
     {
-        if (_startPoint == null || _endPoint == null) throw new InvalidOperationException("Cannot calculate path without start and end point.");
+        if (StartPoint == null || EndPoint == null) throw new InvalidOperationException("Cannot calculate path without start and end point.");
 
-        return this.ShortestPath(_startPoint, _endPoint);
+        return this.ShortestPath(StartPoint, EndPoint);
     }
 
-    private void IsAllowedPoint(Point point)
+    private Point GetRoutePoint(Coordinate coordinate)
     {
-        if (_grid.SingleOrDefault(p => p.X == point.X && p.Y == point.Y) is not { } gridPoint) throw new InvalidOperationException(@"Point coordinate invalid.");
+        if (_grid.SingleOrDefault(p => p.Coordinate.Equals(coordinate)) is not { } gridPoint) throw new InvalidOperationException(@"Point coordinate invalid.");
         if (gridPoint.Blocked) throw new InvalidOperationException(@"Point coordinate is blocked.");
+
+        return gridPoint;
     }
 }

@@ -8,16 +8,17 @@ using System;
 
 namespace Dijkstra.Models;
 
+public readonly record struct Coordinate(int X, int Y);
+
 public class Point
 {
-    public Point(int x, int y)
+    public Point(Coordinate coordinate)
     {
-        X = x;
-        Y = y;
+        Coordinate = coordinate;
     }
 
-    public int X             { get; }
-    public int Y             { get; }
+    public Coordinate Coordinate { get; }
+
     public int TotalDistance => DistanceFromStart + DistanceToEnd;
 
     public int DistanceFromStart { get; private set; } = -1;
@@ -28,12 +29,12 @@ public class Point
     public bool Blocked { get; private set; }
     public bool Visited { get; private set; }
 
-    public override int GetHashCode() => Convert.ToInt32($"{X}{Y}");
+    public override int GetHashCode() => Convert.ToInt32($"{Coordinate.X}{Coordinate.Y}");
 
     public void SetBlocked(bool isBlocked) => Blocked = isBlocked;
 
     // Estimated distance ignoring blocked points
-    public void SetDistanceToEnd(Point endPoint) => DistanceToEnd = Math.Abs(endPoint.X - X) + Math.Abs(endPoint.Y - Y);
+    public void SetDistanceToEnd(Coordinate endPointCoordinate) => DistanceToEnd = Math.Abs(endPointCoordinate.X - Coordinate.X) + Math.Abs(endPointCoordinate.Y - Coordinate.Y);
 
     public void SetDistanceFromStart(int distance) => DistanceFromStart = distance;
 
@@ -47,5 +48,5 @@ public class Point
         Visited           = false;
     }
 
-    public bool Equals(Point? other) => other?.X == X && other.Y == Y;
+    public bool Equals(Point? other) => other is { } otherPoint && otherPoint.Coordinate.Equals(Coordinate);
 }
