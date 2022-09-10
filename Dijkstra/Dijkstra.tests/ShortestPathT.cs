@@ -23,7 +23,7 @@ public class ShortestPathT
         IReadOnlySet<Point> shortestPath = grid.GetShortestPath();
 
         // Assert
-        shortestPath.Should().HaveCount(5);
+        shortestPath.Should().HaveCount(3);
         shortestPath.Should().ContainSingle(p => p.Equals(new Point(new Coordinate(1, 1))));
         shortestPath.Should().ContainSingle(p => p.Equals(new Point(new Coordinate(3, 3))));
     }
@@ -36,14 +36,14 @@ public class ShortestPathT
         grid.SetStartPoint(new Coordinate(1, 1));
         grid.SetEndPoint(new Coordinate(3,   3));
 
-        grid.Points.Single(p => p.Coordinate.X == 1 && p.Coordinate.Y == 2).SetBlocked(true);
-        grid.Points.Single(p => p.Coordinate.X == 2 && p.Coordinate.Y == 1).SetBlocked(true);
+        grid.PointAtCoordinate(new Coordinate(1, 2)).SetBlocked(true);
+        grid.PointAtCoordinate(new Coordinate(2, 1)).SetBlocked(true);
 
         // Act
         IReadOnlySet<Point> shortestPath = grid.GetShortestPath();
 
         // Assert
-        shortestPath.Should().HaveCount(7);
+        shortestPath.Should().HaveCount(3);
         shortestPath.Should().ContainSingle(p => p.Equals(new Point(new Coordinate(1, 1))));
         shortestPath.Should().ContainSingle(p => p.Equals(new Point(new Coordinate(3, 3))));
     }
@@ -56,11 +56,11 @@ public class ShortestPathT
         grid.SetStartPoint(new Coordinate(1, 1));
         grid.SetEndPoint(new Coordinate(3,   3));
 
-        grid.Points.Single(p => p.Coordinate.X == 0 && p.Coordinate.Y == 2).SetBlocked(true);
-        grid.Points.Single(p => p.Coordinate.X == 1 && p.Coordinate.Y == 2).SetBlocked(true);
-        grid.Points.Single(p => p.Coordinate.X == 2 && p.Coordinate.Y == 2).SetBlocked(true);
-        grid.Points.Single(p => p.Coordinate.X == 3 && p.Coordinate.Y == 2).SetBlocked(true);
-        grid.Points.Single(p => p.Coordinate.X == 4 && p.Coordinate.Y == 2).SetBlocked(true);
+        grid.PointAtCoordinate(new Coordinate(0, 2)).SetBlocked(true);
+        grid.PointAtCoordinate(new Coordinate(1, 2)).SetBlocked(true);
+        grid.PointAtCoordinate(new Coordinate(2, 2)).SetBlocked(true);
+        grid.PointAtCoordinate(new Coordinate(3, 2)).SetBlocked(true);
+        grid.PointAtCoordinate(new Coordinate(4, 2)).SetBlocked(true);
 
         // Act/Assert
         grid.Invoking(g => g.GetShortestPath()).Should().Throw<InvalidOperationException>();

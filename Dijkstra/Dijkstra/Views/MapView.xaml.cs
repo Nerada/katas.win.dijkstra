@@ -13,24 +13,18 @@ namespace Dijkstra.Views;
 
 public partial class MapView
 {
-    private bool _drawingActive;
+    private readonly GridViewModel   _gridViewModel;
+    private readonly WriteableBitmap _image;
+    private          bool            _drawingActive;
 
-    private GridViewModel?   _gridViewModel;
-    private WriteableBitmap? _image;
-
-    public MapView()
+    public MapView(GridViewModel gridViewModel)
     {
+        _gridViewModel = gridViewModel;
+        _image         = (WriteableBitmap)_gridViewModel.BitmapVm.Source;
+
         InitializeComponent();
 
-
-        DataContextChanged += (_, _) => DataContextSet();
-    }
-
-    private void DataContextSet()
-    {
-        _gridViewModel = (GridViewModel)DataContext;
-
-        _image = (WriteableBitmap)_gridViewModel.BitmapVm.Source;
+        DataContext = _gridViewModel;
     }
 
     private void OnMouseRightDown(object sender, MouseButtonEventArgs e)
@@ -44,28 +38,56 @@ public partial class MapView
 
     private void OnMouseMove(object sender, MouseEventArgs e)
     {
-        if (_image == null || _gridViewModel == null || !_drawingActive) return;
+        if (!_gridViewModel.CanCalculate || !_drawingActive) return;
 
-        _gridViewModel.BlockCoordinate(CurrentCoordinate(_image, e));
+        try { _gridViewModel.BlockCoordinate(CurrentCoordinate(_image, e)); }
+        catch
+        {
+            // ignored
+        }
     }
 
     private void OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
-        if (_image == null || _gridViewModel == null) return;
+        if (!_gridViewModel.CanCalculate) return;
 
-        if (_gridViewModel.StartLocation == null)
+        LeftAction action = _gridViewModel.StartLocation == null ? LeftAction.SetStart : _gridViewModel.EndLocation == null ? LeftAction.SetEnd : LeftAction.Reset;
+
+        if (action == LeftAction.Reset)
         {
-            _gridViewModel.SetStartLocation(CurrentCoordinate(_image, e));
+            _gridViewModel.ResetLocations();
             return;
         }
 
-        if (_gridViewModel.EndLocation == null)
+        Coordinate newLocation = CurrentCoordinate(_image, e);
+
+        if (!ValidateCoordinate(action, newLocation))
         {
-            _gridViewModel.SetEndLocation(CurrentCoordinate(_image, e));
+            _gridViewModel.ShowError("Cannot place here.");
             return;
         }
 
-        _gridViewModel.ResetLocations();
+        switch (action)
+        {
+            case LeftAction.SetStart:
+                _gridViewModel.SetStartLocation(newLocation);
+                break;
+            case LeftAction.SetEnd:
+                _gridViewModel.SetEndLocation(newLocation);
+                break;
+        }
+    }
+
+    private bool ValidateCoordinate(LeftAction action, Coordinate coordinate)
+    {
+        if (_gridViewModel.PointAtCoordinate(coordinate).Blocked) return false;
+
+        return action switch
+        {
+            LeftAction.SetStart => !coordinate.Equals(_gridViewModel.EndLocation),
+            LeftAction.SetEnd   => !coordinate.Equals(_gridViewModel.StartLocation),
+            _                   => false
+        };
     }
 
     private Coordinate CurrentCoordinate(WriteableBitmap image, MouseEventArgs e)
@@ -74,5 +96,12 @@ public partial class MapView
         int pixelMousePositionY = (int)(e.GetPosition(Map).Y * image.PixelHeight / Map.ActualHeight);
 
         return new Coordinate(pixelMousePositionX, pixelMousePositionY);
+    }
+
+    private enum LeftAction
+    {
+        SetStart,
+        SetEnd,
+        Reset
     }
 }

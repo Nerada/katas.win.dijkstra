@@ -5,15 +5,15 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:viewModels="clr-namespace:Dijkstra.ViewModels"
              mc:Ignorable="d"
-             d:DataContext="{d:DesignInstance viewModels:GridViewModel}"
-             d:DesignHeight="450" d:DesignWidth="800">
-    <Grid VerticalAlignment="Top" HorizontalAlignment="Left" Background="Red">
+             d:DataContext="{d:DesignInstance viewModels:GridViewModel}">
+    <Grid VerticalAlignment="Top" HorizontalAlignment="Left" Background="Red"
+          Width="{Binding Width}" Height="{Binding Height}">
 
         <Image x:Name="Map" Source="{Binding BitmapVm.Source}"
                RenderOptions.BitmapScalingMode="NearestNeighbor"
                SnapsToDevicePixels="True" HorizontalAlignment="Left" VerticalAlignment="Top"
-               Width="1000"
-               Height="600"
+               Stretch="UniformToFill"
+               StretchDirection="Both"
                MouseRightButtonDown="OnMouseRightDown"
                MouseRightButtonUp="OnMouseRightUp"
                MouseLeave="OnMouseLeave"

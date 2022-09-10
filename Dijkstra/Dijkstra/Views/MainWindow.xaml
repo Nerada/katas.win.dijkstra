@@ -3,11 +3,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Dijkstra.Views"
         xmlns:viewModels="clr-namespace:Dijkstra.ViewModels"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance viewModels:GridViewModel}"
-        Title="MainWindow" Height="800" Width="1020" ResizeMode="NoResize">
+        Title="Path Finding" ResizeMode="NoResize" SizeToContent="WidthAndHeight">
     <Grid Margin="10">
         <Grid.Resources>
         </Grid.Resources>
@@ -19,13 +18,22 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <local:MapView Grid.Row="2" DataContext="{Binding Mode=OneWay}"
-                       HorizontalAlignment="Left"
-                       VerticalAlignment="Top" MinWidth="210" MinHeight="100" />
+        <Grid x:Name="MapViewLocation" Grid.Row="2"
+              HorizontalAlignment="Left"
+              VerticalAlignment="Top" MinWidth="210" MinHeight="100" />
 
-        <StackPanel Grid.Row="4" Orientation="Horizontal">
-            <Button Height="50" Width="100" Command="{Binding CalculateRouteCommand}"
-                    Content="Calculate route" Margin="0,10,0,0" />
-        </StackPanel>
+        <DockPanel Grid.Row="4">
+            <Grid Margin="0,10,0,0">
+                <Button Height="30" Width="100" Command="{Binding CalculateRouteCommand}"
+                        Content="Calculate route" VerticalAlignment="Top" />
+                <Button Height="20" Width="100" Command="{Binding ToggleAStarCommand}"
+                        Content="{Binding AStarButtonText}" VerticalAlignment="Bottom" />
+            </Grid>
+            <Button Height="50" Width="100" Command="{Binding ClearCommand}"
+                    Content="Clear" Margin="0,10,0,0" />
+
+            <TextBlock HorizontalAlignment="Right" VerticalAlignment="Center" Text="{Binding ErrorMessage}"
+                       FontSize="16" TextWrapping="Wrap" TextAlignment="Right" Margin="10,0,0,0" />
+        </DockPanel>
     </Grid>
 </Window>

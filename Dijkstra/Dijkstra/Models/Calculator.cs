@@ -1,18 +1,19 @@
 ﻿// -----------------------------------------------
 //     Author: Ramon Bollen
 //      File: Dijkstra.Calculator.cs
-// Created on: 20220906
+// Created on: 20220909
 // -----------------------------------------------
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Dijkstra.Extensions;
 
 namespace Dijkstra.Models;
 
 public static class Calculator
 {
-    public static IReadOnlySet<Point> ShortestPath(this Grid grid, Point startPoint, Point endPoint)
+    public static IReadOnlySet<Point> ShortestPath(Grid grid, Point startPoint, Point endPoint, bool aStarEnabled = true)
     {
         List<Point> activePoints     = new();
         List<Point> calculatedPoints = new();
@@ -22,7 +23,7 @@ public static class Calculator
 
         while (activePoints.Any())
         {
-            Point currentPoint = activePoints.OrderBy(point => point.TotalDistance).First();
+            Point currentPoint = activePoints.OrderByDescending(point => point.TotalDistance).Last();
 
             // EndPoint found
             if (currentPoint.Equals(endPoint)) return GetRoute(currentPoint);
@@ -30,8 +31,11 @@ public static class Calculator
             calculatedPoints.Add(currentPoint);
             activePoints.Remove(currentPoint);
 
-            foreach (Point neighboringPoint in GetNeighboringPoints(grid, currentPoint))
+            foreach (Coordinate neighboringCoordinate in GetNeighboringCoordinates(grid, currentPoint.Coordinate))
             {
+                Point neighboringPoint = grid.PointAtCoordinate(neighboringCoordinate);
+                if (neighboringPoint.Blocked) continue;
+
                 // Point already handled
                 if (calculatedPoints.Any(calcPoint => calcPoint.Equals(neighboringPoint))) continue;
 
@@ -41,20 +45,19 @@ public static class Calculator
                     activePoints.Add(neighboringPoint);
 
                     neighboringPoint.SetOrigin(currentPoint);
-                    neighboringPoint.SetDistanceFromStart(currentPoint.DistanceFromStart + 1);
-                    neighboringPoint.SetDistanceToEnd(endPoint.Coordinate);
-
+                    if (aStarEnabled) neighboringPoint.SetDistanceToEnd(endPoint.Coordinate);
                     continue;
                 }
 
-                // Already processed point found in current points
-                Point existingPoint = activePoints.First(activePoint => activePoint.Equals(neighboringPoint));
-                if (existingPoint.TotalDistance > currentPoint.TotalDistance)
-                {
-                    activePoints.Remove(existingPoint);
-                    activePoints.Add(neighboringPoint);
-                }
+                // Active point found in current points
+                Point currentPointNeighbor = activePoints.First(activePoint => activePoint.Equals(neighboringPoint));
+
+                if (currentPointNeighbor.DistanceFromStart > currentPoint.DistanceFromStart + 1) activePoints.Remove(currentPointNeighbor);
+
+                if (currentPointNeighbor.DistanceFromStart == currentPoint.DistanceFromStart + 1 && currentPointNeighbor.IsDirectNeighbor(currentPoint)) currentPointNeighbor.SetOrigin(currentPoint);
             }
+
+            currentPoint.Visit();
         }
 
         throw new InvalidOperationException("Endpoint could not be found.");
@@ -77,22 +80,26 @@ public static class Calculator
         return route;
     }
 
-    private static IReadOnlySet<Point> GetNeighboringPoints(Grid grid, Point currentPoint)
+    private static IReadOnlyList<Coordinate> GetNeighboringCoordinates(Grid grid, Coordinate currentCoordinate)
     {
-        List<Coordinate> neighborCoordinates = new()
+        List<Coordinate> neighbors = new()
         {
-            currentPoint.Coordinate with {Y = currentPoint.Coordinate.Y - 1},
-            currentPoint.Coordinate with {Y = currentPoint.Coordinate.Y + 1},
-            currentPoint.Coordinate with {X = currentPoint.Coordinate.X - 1},
-            currentPoint.Coordinate with {X = currentPoint.Coordinate.X + 1}
+            // Direct (+)
+            new Coordinate(currentCoordinate.X - 1, currentCoordinate.Y),
+            new Coordinate(currentCoordinate.X + 1, currentCoordinate.Y),
+            new Coordinate(currentCoordinate.X,     currentCoordinate.Y - 1),
+            new Coordinate(currentCoordinate.X,     currentCoordinate.Y + 1),
+
+            // Diagonals (X)
+            new Coordinate(currentCoordinate.X - 1, currentCoordinate.Y - 1),
+            new Coordinate(currentCoordinate.X - 1, currentCoordinate.Y + 1),
+            new Coordinate(currentCoordinate.X + 1, currentCoordinate.Y - 1),
+            new Coordinate(currentCoordinate.X + 1, currentCoordinate.Y + 1)
         };
 
-        neighborCoordinates.RemoveAll(location => location.X < 0 || location.X > grid.Size.X - 1);
-        neighborCoordinates.RemoveAll(location => location.Y < 0 || location.Y > grid.Size.Y - 1);
+        neighbors.RemoveAll(coordinate => coordinate.X < 0 || coordinate.X > grid.Size.X - 1);
+        neighbors.RemoveAll(coordinate => coordinate.Y < 0 || coordinate.Y > grid.Size.Y - 1);
 
-        List<Point> gridPoints = neighborCoordinates.Select(neighborCoordinate => grid.Points.Single(point => point.Coordinate.Equals(neighborCoordinate))).ToList();
-        gridPoints.RemoveAll(point => point.Blocked);
-
-        return gridPoints.ToHashSet();
+        return neighbors;
     }
 }

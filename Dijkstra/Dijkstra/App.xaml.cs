@@ -20,14 +20,13 @@ public partial class App
     {
         Grid grid = new(100, 60);
 
-        GridBitmapViewModel bitmap = new(grid);
+        GridBitmap bitmap = new(grid);
 
         GridViewModel gridViewModel = new(grid, bitmap);
 
-        MainWindow mainWindow = new()
-        {
-            DataContext = gridViewModel
-        };
+        MapView mapView = new(gridViewModel);
+
+        MainWindow mainWindow = new(gridViewModel, mapView);
 
         mainWindow.Show();
     }

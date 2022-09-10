@@ -4,6 +4,10 @@
 // Created on: 20220907
 // -----------------------------------------------
 
+using System.ComponentModel;
+using System.Threading.Tasks;
+using Dijkstra.ViewModels;
+
 namespace Dijkstra.Views;
 
 /// <summary>
@@ -11,8 +15,29 @@ namespace Dijkstra.Views;
 /// </summary>
 public partial class MainWindow
 {
-    public MainWindow()
+    private readonly GridViewModel _gridViewModel;
+
+    public MainWindow(GridViewModel gridViewModel, MapView mapView)
     {
+        _gridViewModel = gridViewModel;
+
         InitializeComponent();
+
+        MapViewLocation.Children.Add(mapView);
+
+        DataContext = gridViewModel;
+
+        _gridViewModel.PropertyChanged += OnGameViewModelPropertyChanged;
+    }
+
+    private void OnGameViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(GridViewModel.ErrorMessage)) ClearErrors();
+    }
+
+    private async void ClearErrors()
+    {
+        await Task.Delay(5000);
+        _gridViewModel.ShowError(string.Empty);
     }
 }

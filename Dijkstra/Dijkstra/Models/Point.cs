@@ -1,7 +1,7 @@
 ﻿// -----------------------------------------------
 //     Author: Ramon Bollen
 //      File: Dijkstra.Point.cs
-// Created on: 20220906
+// Created on: 20220909
 // -----------------------------------------------
 
 using System;
@@ -9,6 +9,8 @@ using System;
 namespace Dijkstra.Models;
 
 public readonly record struct Coordinate(int X, int Y);
+
+public delegate void VisitEventHandler(Coordinate coordinate);
 
 public class Point
 {
@@ -21,13 +23,14 @@ public class Point
 
     public int TotalDistance => DistanceFromStart + DistanceToEnd;
 
+    public Point? Origin { get; private set; }
+
     public int DistanceFromStart { get; private set; } = -1;
     public int DistanceToEnd     { get; private set; } = -1;
 
-    public Point? Origin { get; private set; }
-
     public bool Blocked { get; private set; }
-    public bool Visited { get; private set; }
+
+    public event VisitEventHandler? PointVisited;
 
     public override int GetHashCode() => Convert.ToInt32($"{Coordinate.X}{Coordinate.Y}");
 
@@ -36,17 +39,21 @@ public class Point
     // Estimated distance ignoring blocked points
     public void SetDistanceToEnd(Coordinate endPointCoordinate) => DistanceToEnd = Math.Abs(endPointCoordinate.X - Coordinate.X) + Math.Abs(endPointCoordinate.Y - Coordinate.Y);
 
-    public void SetDistanceFromStart(int distance) => DistanceFromStart = distance;
+    public void Visit() => PointVisited?.Invoke(Coordinate);
 
-    public void SetOrigin(Point origin) => Origin = origin;
-
-    public void Reset()
+    public void Reset(bool soft = false)
     {
         DistanceFromStart = -1;
         DistanceToEnd     = -1;
         Origin            = null;
-        Visited           = false;
+        if (!soft) Blocked = false;
     }
 
-    public bool Equals(Point? other) => other is { } otherPoint && otherPoint.Coordinate.Equals(Coordinate);
+    public override bool Equals(object? obj) => obj is Point otherPoint && otherPoint.Coordinate.Equals(Coordinate);
+
+    public void SetOrigin(Point origin)
+    {
+        Origin            = origin;
+        DistanceFromStart = origin.DistanceFromStart + 1;
+    }
 }

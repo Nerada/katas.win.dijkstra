@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Dijkstra.Extensions;
 
 namespace Dijkstra.Models;
 
@@ -21,7 +22,14 @@ public class Grid
 
         for (int x = 0; x < xSize; x++)
         {
-            for (int y = 0; y < ySize; y++) { _grid.Add(new Point(new Coordinate(x, y))); }
+            for (int y = 0; y < ySize; y++)
+            {
+                Point newPoint = new(new Coordinate(x, y));
+
+                _grid.Add(newPoint);
+
+                newPoint.PointVisited += OnPointVisited;
+            }
         }
     }
 
@@ -31,6 +39,8 @@ public class Grid
 
     public Point? EndPoint   { get; private set; }
     public Point? StartPoint { get; private set; }
+
+    public event VisitEventHandler? PointVisited;
 
     public void SetStartPoint(Coordinate? startPoint)
     {
@@ -58,11 +68,30 @@ public class Grid
         EndPoint = GetRoutePoint(end);
     }
 
-    public IReadOnlySet<Point> GetShortestPath()
+    public IReadOnlySet<Point> GetShortestPath(bool aStarEnabled = true)
     {
         if (StartPoint == null || EndPoint == null) throw new InvalidOperationException("Cannot calculate path without start and end point.");
 
-        return this.ShortestPath(StartPoint, EndPoint);
+        return this.ShortestPath(StartPoint, EndPoint, aStarEnabled);
+    }
+
+    public void Reset(bool soft = false) => _grid.ToList().ForEach(point => point.Reset(soft));
+
+    public Point PointAtCoordinate(Coordinate coordinate) => Points.Single(point => point.Coordinate.Equals(coordinate));
+
+    public void Clear()
+    {
+        StartPoint = null;
+        EndPoint   = null;
+
+        Reset();
+    }
+
+    private void OnPointVisited(Coordinate coordinate)
+    {
+        if (coordinate.Equals(StartPoint?.Coordinate) || coordinate.Equals(EndPoint?.Coordinate)) return;
+
+        PointVisited?.Invoke(coordinate);
     }
 
     private Point GetRoutePoint(Coordinate coordinate)
