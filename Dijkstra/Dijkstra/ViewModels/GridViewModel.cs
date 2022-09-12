@@ -1,11 +1,12 @@
 ﻿// -----------------------------------------------
 //     Author: Ramon Bollen
 //      File: Dijkstra.GridViewModel.cs
-// Created on: 20220907
+// Created on: 20220909
 // -----------------------------------------------
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -20,11 +21,11 @@ public class GridViewModel : ViewModelBase
 {
     private readonly Grid _gridModel;
 
+    private (string message, bool reset) _errorMessage = ("Use your left mouse button to place the start and end points, use your right mouse button to draw walls.", false);
+
     private bool _aStarEnabled = true;
     private bool _canCalculate = true;
     private bool _canClear     = true;
-
-    private string _errorMessage = "Use your left mouse button to place the start and end points, use your right mouse button to draw walls.";
 
     public GridViewModel(Grid gridModel, GridBitmap gridBitmap)
     {
@@ -56,6 +57,10 @@ public class GridViewModel : ViewModelBase
 
     public double Height => BitmapVm.Height * 10;
 
+    public string Message => _errorMessage.message;
+
+    public bool ResetMessage => _errorMessage.reset;
+
     public bool CanCalculate
     {
         get => _canCalculate;
@@ -66,12 +71,6 @@ public class GridViewModel : ViewModelBase
             CalculateRouteCommand.RaiseCanExecuteChanged();
             ToggleAStarCommand.RaiseCanExecuteChanged();
         }
-    }
-
-    public string ErrorMessage
-    {
-        get => _errorMessage;
-        private set => Set(ref _errorMessage, value);
     }
 
     private bool CanClear
@@ -85,7 +84,11 @@ public class GridViewModel : ViewModelBase
         }
     }
 
-    public void ShowError(string errorMessage) => ErrorMessage = errorMessage;
+    public void ShowMessage(string errorMessage, bool reset = true)
+    {
+        _errorMessage = (errorMessage, reset);
+        RaisePropertyChanged(nameof(Message));
+    }
 
     public void SetStartLocation(Coordinate coordinate)
     {
@@ -155,7 +158,7 @@ public class GridViewModel : ViewModelBase
     {
         if (_gridModel.StartPoint == null || _gridModel.EndPoint == null)
         {
-            ErrorMessage = "No start or endpoint set.";
+            ShowMessage("No start or endpoint set.");
             return;
         }
 
@@ -164,22 +167,26 @@ public class GridViewModel : ViewModelBase
 
         ResetGrid();
 
+        Stopwatch stopwatch = Stopwatch.StartNew();
+
         Task<IReadOnlySet<Point>> pathTask = Task.Run(() => _gridModel.GetShortestPath(_aStarEnabled));
 
         pathTask.ContinueWith(_ =>
         {
-            ShowError("Cannot calculate route.");
+            ShowMessage("Cannot calculate route.");
             CanClear = true;
         }, TaskContinuationOptions.OnlyOnFaulted);
 
         pathTask.ContinueWith(result =>
                               {
+                                  stopwatch.Stop();
                                   result.Result.Skip(1)
                                         .SkipLast(1)
                                         .ToList()
                                         .ForEach(point => Application.Current.Dispatcher.BeginInvoke(new Action(() => BitmapVm.WritePixel(point.Coordinate, GridColors.RouteColor))));
                                   CanClear     = true;
                                   CanCalculate = true;
+                                  ShowMessage($"Distance={result.Result.Count}{Environment.NewLine}Time={stopwatch.Elapsed:mm\\:ss\\.fff}", false);
                               },
                               TaskContinuationOptions.OnlyOnRanToCompletion);
     }

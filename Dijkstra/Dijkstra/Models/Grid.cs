@@ -1,7 +1,7 @@
 ﻿// -----------------------------------------------
 //     Author: Ramon Bollen
 //      File: Dijkstra.Grid.cs
-// Created on: 20220906
+// Created on: 20220909
 // -----------------------------------------------
 
 using System;
@@ -28,7 +28,7 @@ public class Grid
 
                 _grid.Add(newPoint);
 
-                newPoint.PointVisited += OnPointVisited;
+                newPoint.Visited += OnPointVisited;
             }
         }
     }

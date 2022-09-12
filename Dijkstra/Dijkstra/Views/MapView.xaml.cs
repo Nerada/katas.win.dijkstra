@@ -1,7 +1,7 @@
 ﻿// -----------------------------------------------
 //     Author: Ramon Bollen
 //      File: Dijkstra.MapView.xaml.cs
-// Created on: 20220907
+// Created on: 20220908
 // -----------------------------------------------
 
 using System.Windows.Input;
@@ -63,7 +63,7 @@ public partial class MapView
 
         if (!ValidateCoordinate(action, newLocation))
         {
-            _gridViewModel.ShowError("Cannot place here.");
+            _gridViewModel.ShowMessage("Cannot place here.");
             return;
         }
 

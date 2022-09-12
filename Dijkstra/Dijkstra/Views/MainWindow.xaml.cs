@@ -1,7 +1,7 @@
 ﻿// -----------------------------------------------
 //     Author: Ramon Bollen
 //      File: Dijkstra.MainWindow.xaml.cs
-// Created on: 20220907
+// Created on: 20220908
 // -----------------------------------------------
 
 using System.ComponentModel;
@@ -32,12 +32,12 @@ public partial class MainWindow
 
     private void OnGameViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(GridViewModel.ErrorMessage)) ClearErrors();
+        if (e.PropertyName == nameof(GridViewModel.Message) && _gridViewModel.ResetMessage) ClearErrors();
     }
 
     private async void ClearErrors()
     {
         await Task.Delay(5000);
-        _gridViewModel.ShowError(string.Empty);
+        _gridViewModel.ShowMessage(string.Empty);
     }
 }
