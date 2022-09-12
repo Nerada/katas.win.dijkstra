@@ -4,7 +4,6 @@
 // Created on: 20220908
 // -----------------------------------------------
 
-using System.ComponentModel;
 using System.Threading.Tasks;
 using Dijkstra.ViewModels;
 
@@ -15,29 +14,32 @@ namespace Dijkstra.Views;
 /// </summary>
 public partial class MainWindow
 {
-    private readonly GridViewModel _gridViewModel;
+    private bool _resetMessage;
 
     public MainWindow(GridViewModel gridViewModel, MapView mapView)
     {
-        _gridViewModel = gridViewModel;
-
         InitializeComponent();
 
         MapViewLocation.Children.Add(mapView);
 
         DataContext = gridViewModel;
 
-        _gridViewModel.PropertyChanged += OnGameViewModelPropertyChanged;
+        gridViewModel.NewMessage += OnNewMessage;
+
+        OnNewMessage("Use your left mouse button to place the start and end points, use your right mouse button to draw walls.", false);
     }
 
-    private void OnGameViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    private void OnNewMessage(string message, bool reset)
     {
-        if (e.PropertyName == nameof(GridViewModel.Message) && _gridViewModel.ResetMessage) ClearErrors();
+        MessageBlock.Text = message;
+        if (reset) ClearErrors();
+
+        _resetMessage = reset;
     }
 
     private async void ClearErrors()
     {
         await Task.Delay(5000);
-        _gridViewModel.ShowMessage(string.Empty);
+        if (_resetMessage) MessageBlock.Text = string.Empty;
     }
 }

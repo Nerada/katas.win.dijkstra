@@ -17,11 +17,11 @@ using Point = Dijkstra.Models.Point;
 
 namespace Dijkstra.ViewModels;
 
+public delegate void MessageEventHandler(string message, bool reset);
+
 public class GridViewModel : ViewModelBase
 {
     private readonly Grid _gridModel;
-
-    private (string message, bool reset) _errorMessage = ("Use your left mouse button to place the start and end points, use your right mouse button to draw walls.", false);
 
     private bool _aStarEnabled = true;
     private bool _canCalculate = true;
@@ -57,10 +57,6 @@ public class GridViewModel : ViewModelBase
 
     public double Height => BitmapVm.Height * 10;
 
-    public string Message => _errorMessage.message;
-
-    public bool ResetMessage => _errorMessage.reset;
-
     public bool CanCalculate
     {
         get => _canCalculate;
@@ -84,11 +80,9 @@ public class GridViewModel : ViewModelBase
         }
     }
 
-    public void ShowMessage(string errorMessage, bool reset = true)
-    {
-        _errorMessage = (errorMessage, reset);
-        RaisePropertyChanged(nameof(Message));
-    }
+    public event MessageEventHandler? NewMessage;
+
+    public void ShowMessage(string errorMessage, bool reset = true) => Application.Current.Dispatcher.BeginInvoke(() => NewMessage?.Invoke(errorMessage, reset));
 
     public void SetStartLocation(Coordinate coordinate)
     {
