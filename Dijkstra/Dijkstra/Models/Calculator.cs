@@ -1,7 +1,7 @@
 ﻿// -----------------------------------------------
 //     Author: Ramon Bollen
 //      File: Dijkstra.Calculator.cs
-// Created on: 20220909
+// Created on: 20220913
 // -----------------------------------------------
 
 using System;
@@ -52,9 +52,9 @@ public static class Calculator
                 // Active point found in current points
                 Point currentPointNeighbor = activePoints.First(activePoint => activePoint.Equals(neighboringPoint));
 
-                if (currentPointNeighbor.DistanceFromStart > currentPoint.DistanceFromStart + 1) activePoints.Remove(currentPointNeighbor);
-
-                if (currentPointNeighbor.DistanceFromStart == currentPoint.DistanceFromStart + 1 && currentPointNeighbor.IsDirectNeighbor(currentPoint)) currentPointNeighbor.SetOrigin(currentPoint);
+                if (currentPointNeighbor.DistanceFromStart > currentPoint.DistanceFromStart + 1 ||
+                    (currentPointNeighbor.DistanceFromStart == currentPoint.DistanceFromStart + 1 && currentPointNeighbor.IsDirectNeighbor(currentPoint)))
+                    currentPointNeighbor.SetOrigin(currentPoint);
             }
 
             currentPoint.Visit();

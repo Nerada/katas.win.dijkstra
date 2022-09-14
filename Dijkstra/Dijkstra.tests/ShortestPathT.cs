@@ -1,7 +1,7 @@
 // -----------------------------------------------
 //     Author: Ramon Bollen
 //      File: Dijkstra.tests.ShortestPathT.cs
-// Created on: 20220906
+// Created on: 20220908
 // -----------------------------------------------
 
 using Dijkstra.Models;
@@ -38,18 +38,19 @@ public class ShortestPathT
 
         grid.PointAtCoordinate(new Coordinate(1, 2)).SetBlocked(true);
         grid.PointAtCoordinate(new Coordinate(2, 1)).SetBlocked(true);
+        grid.PointAtCoordinate(new Coordinate(2, 2)).SetBlocked(true);
 
         // Act
         IReadOnlySet<Point> shortestPath = grid.GetShortestPath();
 
         // Assert
-        shortestPath.Should().HaveCount(3);
+        shortestPath.Should().HaveCount(5);
         shortestPath.Should().ContainSingle(p => p.Equals(new Point(new Coordinate(1, 1))));
         shortestPath.Should().ContainSingle(p => p.Equals(new Point(new Coordinate(3, 3))));
     }
 
     [Fact]
-    public void TotalCutoff()
+    public void TotalIsolation()
     {
         // Arrange
         Grid grid = new(5, 5);

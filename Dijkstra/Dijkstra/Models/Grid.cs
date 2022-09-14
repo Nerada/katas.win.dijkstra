@@ -77,7 +77,7 @@ public class Grid
 
     public void Reset(bool soft = false) => _grid.ToList().ForEach(point => point.Reset(soft));
 
-    public Point PointAtCoordinate(Coordinate coordinate) => Points.Single(point => point.Coordinate.Equals(coordinate));
+    public Point PointAtCoordinate(Coordinate coordinate) => _grid.Single(point => point.Coordinate.Equals(coordinate));
 
     public void Clear()
     {
