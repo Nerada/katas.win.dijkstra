@@ -6,4 +6,4 @@ $buildTime = [System.DateTimeOffset]::Now.ToString("o")
 
 if($officialBuild -ne "official-build"){$user = $env:UserName + "|"}
 
-$user + $branch + "|" + $gitRef + "|build-time_" + $buildTime + "_" + $test
+$user + $branch + "|" + $gitRef + "|" + $buildTime

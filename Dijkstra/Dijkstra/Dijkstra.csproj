@@ -20,19 +20,12 @@
     <NoWarn>1701;1702;NU1701;</NoWarn>
   </PropertyGroup>
 
-  <Target Name="GetBuildMetaData" Outputs="$(RevisionId)">
-    <Message Text="Running meta data script" />
-    <Exec Command="powershell.exe -ExecutionPolicy Bypass -command &quot;&amp; {echo (.\..\buildMetaData.ps1)}&quot;" ConsoleToMSBuild="true">
-      <Output TaskParameter="ConsoleOutput" PropertyName="RevisionId"/>
-    </Exec>
-  </Target>
-
-  <Target Name="SetRevisionId" BeforeTargets="PreBuildEvent" DependsOnTargets="GetBuildMetaData">
-    <Message Text="Assigning revision id" />
-    <PropertyGroup>
-      <SourceRevisionId>$(RevisionId)</SourceRevisionId>
-      <Configuration>howdy</Configuration>
-    </PropertyGroup>
+  <Target Name="SetSourceRevisionId" BeforeTargets="BeforeBuild" Condition="'$(SourceRevisionId)' == ''"> 
+    <Message Importance="High" Text="Running meta data script" /> 
+    <Exec Command="powershell -NonInteractive -ExecutionPolicy Bypass .\..\buildMetaData.ps1" ConsoleToMSBuild="true"> 
+      <Output TaskParameter="ConsoleOutput" PropertyName="SourceRevisionId" /> 
+    </Exec> 
+    <Message Importance="High" Text="SourceRevisionId set from project file to: $(SourceRevisionId)" /> 
   </Target>
 
 </Project>
