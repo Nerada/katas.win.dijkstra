@@ -20,11 +20,16 @@
     <NoWarn>1701;1702;NU1701;</NoWarn>
   </PropertyGroup>
 
-  <Target Name="SetSourceRevisionId" BeforeTargets="BeforeBuild" Condition="'$(SourceRevisionId)' == ''"> 
+  <Target Name="SetSourceRevisionId" BeforeTargets="BeforeResGen" Condition="'$(SourceRevisionId)' == ''"> 
     <Message Importance="High" Text="Running meta data script" /> 
-    <Exec Command="powershell -NonInteractive -ExecutionPolicy Bypass .\..\buildMetaData.ps1" ConsoleToMSBuild="true"> 
+    <PropertyGroup>
+      <ScriptLocation>https://raw.githubusercontent.com/Nerada/devops.pipelines/master/build-scripts/buildMetaData.ps1</ScriptLocation>
+    </PropertyGroup>
+
+    <Exec Command="powershell -NonInteractive -ExecutionPolicy Bypass Invoke-Command -ScriptBlock ([Scriptblock]::Create(((Invoke-WebRequest -Uri '$(ScriptLocation)' -UseBasicParsing).Content)))" ConsoleToMSBuild="true">
       <Output TaskParameter="ConsoleOutput" PropertyName="SourceRevisionId" /> 
     </Exec> 
+
     <Message Importance="High" Text="SourceRevisionId set from project file to: $(SourceRevisionId)" /> 
   </Target>
 
