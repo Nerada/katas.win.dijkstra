@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Dijkstra.Extensions;
 
@@ -31,6 +32,7 @@ public static class Calculator
             calculatedPoints.Add(currentPoint);
             activePoints.Remove(currentPoint);
 
+            // ReSharper disable once LoopCanBePartlyConvertedToQuery
             foreach (Coordinate neighboringCoordinate in GetNeighboringCoordinates(grid, currentPoint.Coordinate))
             {
                 Point neighboringPoint = grid.PointAtCoordinate(neighboringCoordinate);
@@ -80,6 +82,7 @@ public static class Calculator
         return route;
     }
 
+    [SuppressMessage("ReSharper", "UseWithExpressionToCopyRecord")]
     private static IReadOnlyList<Coordinate> GetNeighboringCoordinates(Grid grid, Coordinate currentCoordinate)
     {
         List<Coordinate> neighbors = new()

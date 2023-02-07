@@ -20,11 +20,6 @@ public class ViewModelBase : INotifyPropertyChanged
     private static readonly ConcurrentDictionary<string, PropertyChangedEventArgs>
         CachedPropertyChangedEventArgs = new();
 
-    /// <summary>
-    ///     Indicates if <see cref="PropertyChanged" /> has any subscribers.
-    /// </summary>
-    protected bool AnyPropertyChangedSubscribers => PropertyChanged != null;
-
     /// <inheritdoc cref="INotifyPropertyChanged.PropertyChanged" />
     public event PropertyChangedEventHandler? PropertyChanged;
 

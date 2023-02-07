@@ -5,6 +5,7 @@
 // -----------------------------------------------
 
 using System.Threading.Tasks;
+using System.Windows;
 using Dijkstra.ViewModels;
 
 namespace Dijkstra.Views;
@@ -16,7 +17,7 @@ public partial class MainWindow
 {
     private bool _resetMessage;
 
-    public MainWindow(GridViewModel gridViewModel, MapView mapView)
+    public MainWindow(GridViewModel gridViewModel, UIElement mapView)
     {
         InitializeComponent();
 

@@ -90,7 +90,7 @@ public partial class MapView
         };
     }
 
-    private Coordinate CurrentCoordinate(WriteableBitmap image, MouseEventArgs e)
+    private Coordinate CurrentCoordinate(BitmapSource image, MouseEventArgs e)
     {
         int pixelMousePositionX = (int)(e.GetPosition(Map).X * image.PixelWidth  / Map.ActualWidth);
         int pixelMousePositionY = (int)(e.GetPosition(Map).Y * image.PixelHeight / Map.ActualHeight);
