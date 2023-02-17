@@ -9,3 +9,7 @@ updates:
     directory: "/Dijkstra/Dijkstra"
     schedule:
       interval: weekly
+  - package-ecosystem: nuget
+    directory: "/Dijkstra/Dijkstra.tests"
+    schedule:
+      interval: weekly
